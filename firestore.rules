@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// WeightMate security rules (reference — deploy manually when ready).
+// Model: any signed-in user can READ workout data (needed for the friends
+// feed + leaderboard among a small trusted group), but can only WRITE
+// their own documents.
+//
+// To use: Firebase Console → Firestore → Rules → paste, or add
+//   "firestore": { "rules": "firestore.rules" }
+// to firebase.json and run `firebase deploy --only firestore:rules`.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function ownsDoc() {
+      return signedIn() && resource.data.uid == request.auth.uid;
+    }
+    function creatingOwnDoc() {
+      return signedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
+    // Profiles: readable by signed-in users (friend search), writable by owner.
+    match /users/{docId} {
+      allow read: if signedIn();
+      allow create: if creatingOwnDoc();
+      allow update, delete: if ownsDoc();
+    }
+
+    // Workout logs: readable by signed-in users (friends feed), writable by owner.
+    match /journal/{docId} {
+      allow read: if signedIn();
+      allow create: if creatingOwnDoc();
+      allow update, delete: if ownsDoc();
+    }
+
+    // Body weight: private to the owner.
+    match /bodyWeight/{docId} {
+      allow read, update, delete: if ownsDoc();
+      allow create: if creatingOwnDoc();
+    }
+
+    // Friendships: only the two people involved can see or modify.
+    match /friendships/{docId} {
+      allow read, update, delete: if signedIn() && request.auth.uid in resource.data.users;
+      allow create: if signedIn()
+        && request.auth.uid in request.resource.data.users
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.status == 'pending';
+    }
+
+    // Legacy collections from the old community version: read-only.
+    match /workouts/{docId} {
+      allow read: if signedIn();
+      match /comments/{commentId} { allow read: if signedIn(); }
+    }
+    match /posts/{docId} {
+      allow read: if signedIn();
+      match /replies/{replyId} { allow read: if signedIn(); }
+    }
+  }
+}

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="WeightMate — your personal lifting tracker. Log workouts fast, track every rep, and train with friends." />
+    <meta name="theme-color" content="#0f0f0f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="WeightMate" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>WeightMate</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+
+    <!-- NAV -->
+    <nav class="navbar">
+      <div class="nav-inner container">
+        <a class="nav-logo" onclick="showPage('home')">Weight<span>Mate</span></a>
+        <div class="nav-links" id="navMenu">
+          <a class="nav-link" onclick="showPage('home')"     id="nav-home">Home</a>
+          <a class="nav-link" onclick="showPage('history')"  id="nav-history">History</a>
+          <a class="nav-link" onclick="showPage('progress')" id="nav-progress">Progress</a>
+          <a class="nav-link" onclick="showPage('friends')"  id="nav-friends">Friends</a>
+        </div>
+        <div class="nav-actions">
+          <div id="nav-auth-buttons">
+            <div class="btn-group">
+              <a class="btn btn-outline btn-sm" onclick="openModal('loginModal')">Log In</a>
+              <a class="btn btn-primary btn-sm" onclick="openModal('signupModal')">Sign Up</a>
+            </div>
+          </div>
+          <div id="nav-user-info" style="display:none;" class="nav-user">
+            <span class="admin-badge" id="nav-admin-badge" style="display:none;">Admin</span>
+            <span class="nav-username" id="nav-username"></span>
+            <a class="btn btn-outline btn-sm" onclick="logOut()">Log Out</a>
+          </div>
+          <button class="nav-gear" onclick="showPage('settings')" aria-label="Settings" title="Settings">⚙</button>
+          <button class="nav-burger" id="navBurger" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- APP CONTAINER -->
+    <div id="app"></div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="mobile-nav">
+      <div class="mobile-nav-inner">
+        <a class="mn-item" id="mnav-home"     onclick="showPage('home')"><span class="mn-icon">🏠</span><span class="mn-label">Home</span></a>
+        <a class="mn-item" id="mnav-history"  onclick="showPage('history')"><span class="mn-icon">📅</span><span class="mn-label">History</span></a>
+        <a class="mn-item mn-fab" id="mnav-fab" onclick="tapFab()"><span class="mn-fab-btn" id="fab-btn">+</span></a>
+        <a class="mn-item" id="mnav-progress" onclick="showPage('progress')"><span class="mn-icon">📈</span><span class="mn-label">Progress</span></a>
+        <a class="mn-item" id="mnav-friends"  onclick="showPage('friends')"><span class="mn-icon">👥</span><span class="mn-label">Friends</span></a>
+      </div>
+    </nav>
+
+    <!-- FOOTER -->
+    <footer class="footer">&copy; 2026 WeightMate. All rights reserved.</footer>
+
+    <!-- LOGIN MODAL -->
+    <div class="modal" id="loginModal">
+      <div class="modal-overlay" onclick="closeModal('loginModal')"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="modal-title">Welcome Back</span>
+          <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="login-error" class="alert alert-warning hidden"></div>
+          <div class="field"><label class="label">Email Address</label><input class="input" type="email" id="login-email" placeholder="you@example.com" /></div>
+          <div class="field"><label class="label">Password</label><input class="input" type="password" id="login-password" placeholder="Your password" /></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary w-full" id="login-btn" onclick="logIn()">Log In</button>
+          <p style="text-align:center;font-size:14px;color:var(--text-muted);">Don't have an account? <a onclick="closeModal('loginModal');openModal('signupModal');">Sign Up Free</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP MODAL -->
+    <div class="modal" id="signupModal">
+      <div class="modal-overlay" onclick="closeModal('signupModal')"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="modal-title">Create Account</span>
+          <button class="modal-close" onclick="closeModal('signupModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="signup-error" class="alert alert-warning hidden"></div>
+          <div class="field"><label class="label">Username</label><input class="input" type="text" id="signup-username" placeholder="e.g. DylanMillage" /></div>
+          <div class="field"><label class="label">Email Address</label><input class="input" type="email" id="signup-email" placeholder="you@example.com" /></div>
+          <div class="field"><label class="label">Password</label><input class="input" type="password" id="signup-password" placeholder="At least 6 characters" /></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary w-full" id="signup-btn" onclick="signUp()">Create Account</button>
+          <p style="text-align:center;font-size:14px;color:var(--text-muted);">Already have an account? <a onclick="closeModal('signupModal');openModal('loginModal');">Log In</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY WEIGHT MODAL -->
+    <div class="modal" id="bodyWeightModal">
+      <div class="modal-overlay" onclick="closeModal('bodyWeightModal')"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="modal-title">Log Body Weight</span>
+          <button class="modal-close" onclick="closeModal('bodyWeightModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="bw-error" class="alert alert-warning hidden"></div>
+          <div class="field">
+            <label class="label">Weight</label>
+            <div class="flex gap-2">
+              <input class="input flex-grow" type="number" step="0.1" inputmode="decimal" id="bw-weight" placeholder="e.g. 180.5" />
+              <div class="select-wrap" style="flex-shrink:0;width:90px;">
+                <select id="bw-unit"><option>lbs</option><option>kg</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Date</label>
+            <input class="input" type="date" id="bw-date" />
+          </div>
+          <div class="field">
+            <label class="label">Notes (optional)</label>
+            <textarea class="textarea" id="bw-notes" placeholder="How are you feeling?" style="min-height:60px;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary w-full" onclick="logBodyWeight()">Save Entry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISE PICKER SHEET -->
+    <div class="sheet" id="exercisePickerSheet">
+      <div class="sheet-overlay" onclick="closeSheet('exercisePickerSheet')"></div>
+      <div class="sheet-card">
+        <div class="sheet-grip"></div>
+        <div class="sheet-header">
+          <span class="modal-title">Add Exercise</span>
+          <button class="modal-close" onclick="closeSheet('exercisePickerSheet')">&times;</button>
+        </div>
+        <input class="input sheet-search" type="text" id="ex-search" placeholder="Search or type a new exercise…"
+               autocomplete="off" autocapitalize="words" oninput="renderExercisePicker()" />
+        <div class="sheet-body" id="ex-picker-results"></div>
+      </div>
+    </div>
+
+    <!-- FINISH WORKOUT SHEET -->
+    <div class="sheet" id="finishSheet">
+      <div class="sheet-overlay" onclick="closeSheet('finishSheet')"></div>
+      <div class="sheet-card">
+        <div class="sheet-grip"></div>
+        <div class="sheet-header">
+          <span class="modal-title">Finish Workout</span>
+          <button class="modal-close" onclick="closeSheet('finishSheet')">&times;</button>
+        </div>
+        <div class="sheet-body" id="finish-summary"></div>
+        <div class="sheet-footer">
+          <button class="btn btn-outline" onclick="closeSheet('finishSheet')">Keep Training</button>
+          <button class="btn btn-primary flex-grow" id="finish-save-btn" onclick="saveSession()">Save Workout ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
